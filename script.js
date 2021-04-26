@@ -60,7 +60,7 @@ class Ball {
         this.vel = new Vector(0,0)
         this.acc = new Vector(0,0)
         this.acceleration = 1
-        this.player =false
+        this.player = false
         BallList.push(this)
     }
     drawBall()
@@ -81,6 +81,13 @@ class Ball {
         ctx.arc(550, 400,50, 0 ,2*Math.PI)
         ctx.strokeStyle = "black"
         ctx.stroke()
+    }
+    reposition()
+    {
+    this.acc = this.acc.unit().mult(this.acceleration);
+    this.vel = this.vel.add(this.acc)
+    this.vel = this.vel.mult(1-friction)
+    this.pos = this.pos.add(this.vel)
     }
 }
 
@@ -105,19 +112,12 @@ function getPlayerInput(b){
     if(!RIGHT && !LEFT){ b.acc.x = 0 }
 
 
-    b.acc = b.acc.unit().mult(b.acceleration);
-    b.vel = b.vel.add(b.acc)
-    b.vel = b.vel.mult(1-friction)
-    b.pos = b.pos.add(b.vel)
+    
 }
 
-let distanceVec = new Vector(0,0)
 
 
-let ball = new Ball(100,100,50)
-let ball2 = new Ball(300,250,40)
-let ball3 = new Ball(500,250,40)
-ball.player = true
+
 
 function coll_detection(b1, b2){
     if(b1.r + b2.r >= b2.pos.subtr(b1.pos).mag()){
@@ -135,6 +135,16 @@ function penetration_resolution(b1, b2){
     b2.pos = b2.pos.add(pen_res.mult(-1));
 }
 
+function coll_res(b1, b2){
+        let normal = b1.pos.subtr(b2.pos).unit();
+        let relVel = b1.vel.subtr(b2.vel);
+        let sepVel = Vector.dot(relVel, normal);
+        let new_sepVel = -sepVel;
+        let sepVelVec = normal.mult(new_sepVel);
+        b1.vel = b1.vel.add(sepVelVec);
+        b2.vel = b2.vel.add(sepVelVec.mult(-1));
+}
+
 function gameLoop() {
     ctx.clearRect(0,0, canvas.clientWidth, canvas.clientHeight)
     BallList.forEach((b, index) => {
@@ -142,16 +152,26 @@ function gameLoop() {
         if (b.player){
             getPlayerInput(b)
         }
-        b.display()
         for(let i = index+1; i<BallList.length; i++){
             if(coll_detection(BallList[index], BallList[i]))
             {
                 penetration_resolution(BallList[index], BallList[i])
+                coll_res(BallList[index], BallList[i])
             }
         }
+        b.display()
+        b.reposition()
     })
     
     requestAnimationFrame(gameLoop);
 }
+
+let distanceVec = new Vector(0,0)
+let ball = new Ball(100,100,50)
+let ball2 = new Ball(300,250,40)
+let ball3 = new Ball(500,250,40)
+ball.player = true
+
+ 
 
 requestAnimationFrame(gameLoop);
