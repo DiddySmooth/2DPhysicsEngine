@@ -7,25 +7,25 @@ let LEFT, RIGHT, UP, DOWN
 
 const BallList = [];
 
-
+///// Creates Vector Class so we can use Vectors
 class Vector{
     constructor(x, y){
         this.x = x;
         this.y = y;
     }
-
+//// math for adding vectors
     add(v){
         return new Vector(this.x+v.x, this.y+v.y);
     }
-
+//// math for subtracting vectors
     subtr(v){
         return new Vector(this.x-v.x, this.y-v.y);
     }
-
+//// math for magnitude of a vector Magnitude = length of the vector
     mag(){
         return Math.sqrt(this.x**2 + this.y**2)
     }
-
+//// Math for multiply vectors
     mult(n){
         return new Vector(this.x*n, this.y*n);
     }
