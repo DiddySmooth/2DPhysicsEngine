@@ -1,7 +1,8 @@
 const canvas = document.getElementById("canvas")
 const ctx = canvas.getContext('2d')
 
-let friction = 0.1;
+let elasticity = 1;
+let friction = 0.05;
 let LEFT, RIGHT, UP, DOWN
 
 const BallList = [];
@@ -109,15 +110,8 @@ function getPlayerInput(b){
     if(RIGHT){ b.acc.x = b.acceleration }
     if(DOWN){ b.acc.y = b.acceleration }
     if(!UP && !DOWN){ b.acc.y = 0 }
-    if(!RIGHT && !LEFT){ b.acc.x = 0 }
-
-
-    
+    if(!RIGHT && !LEFT){ b.acc.x = 0 }    
 }
-
-
-
-
 
 function coll_detection(b1, b2){
     if(b1.r + b2.r >= b2.pos.subtr(b1.pos).mag()){
@@ -135,11 +129,11 @@ function penetration_resolution(b1, b2){
     b2.pos = b2.pos.add(pen_res.mult(-1));
 }
 
-function coll_res(b1, b2){
+function coll_res(b1, b2){      
         let normal = b1.pos.subtr(b2.pos).unit();
         let relVel = b1.vel.subtr(b2.vel);
         let sepVel = Vector.dot(relVel, normal);
-        let new_sepVel = -sepVel;
+        let new_sepVel = -sepVel * elasticity;
         let sepVelVec = normal.mult(new_sepVel);
         b1.vel = b1.vel.add(sepVelVec);
         b2.vel = b2.vel.add(sepVelVec.mult(-1));
